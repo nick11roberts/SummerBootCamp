@@ -1,4 +1,4 @@
-application: twitmock-1012
+application: entirely-unlike-twitter 
 version: 1
 runtime: go
 api_version: go1
@@ -9,4 +9,3 @@ handlers:
   login: required
 - url: /.*
   script: _go_app
-
