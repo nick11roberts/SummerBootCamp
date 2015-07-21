@@ -11,6 +11,7 @@ import (
 
 func init() {
 	http.HandleFunc("/", home)
+	http.HandleFunc("/tweet", tweet)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/logout", logout)
 	http.HandleFunc("/profile/", profile)
@@ -44,6 +45,23 @@ func home(res http.ResponseWriter, req *http.Request) {
 	// TODO: get recent tweets
 
 	renderTemplate(res, "home.html", model)
+}
+
+func tweet(res http.ResponseWriter, req *http.Request) {
+	ctx := appengine.NewContext(req)
+	u := user.Current(ctx)
+	currentUser, err := getProfileByEmail(ctx, u.Email)
+	if err != nil {
+		http.Redirect(res, req, "/login", 302)
+		return
+	}
+	testTweet := Tweet{
+		Username:   currentUser.Username,
+		Message:    "Get the biggest, most muscular neck ever. BIG NECK. ",
+		TimePosted: time.Now(),
+	}
+	putTweet(req, &testTweet)
+	http.Redirect(res, req, "/", 302)
 }
 
 func login(res http.ResponseWriter, req *http.Request) {
@@ -111,27 +129,12 @@ func profile(res http.ResponseWriter, req *http.Request) {
 		model.Profile = *profile
 	}
 
-	////////////////////////////////////////////////////////////////////////////////
-	testTweet := Tweet{
-		Username:   "Nick",
-		Message:    "TWEET, TWEET, TWEET, TWEET, TWEET, TWEET, TWEET, TWEET",
-		TimePosted: time.Now(),
-	}
-	putTweet(req, &testTweet)
-
-	otherTestTweet := Tweet{
-		Username:   "NotNick",
-		Message:    "Some other random message",
-		TimePosted: time.Now(),
-	}
-	putTweet(req, &otherTestTweet)
-	////////////////////////////////////////////////////////////////////////////////
-
 	renderTemplate(res, "profile.html", model)
 
 }
 
 func logout(res http.ResponseWriter, req *http.Request) {
+	http.SetCookie(res, &http.Cookie{Name: "dev_appserver_login", Value: ""})
 	http.SetCookie(res, &http.Cookie{Name: "logged_in", Value: ""})
 	http.Redirect(res, req, "/", 302)
 }
