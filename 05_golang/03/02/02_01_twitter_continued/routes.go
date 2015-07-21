@@ -41,13 +41,13 @@ func home(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 		model.Profile = *profile
+	}
 
-		model.TweetList, err = getLatestTweets(ctx)
-		if err != nil {
-			log.Infof(ctx, "Error getting latest tweets: %v", err)
-			return
-		}
-
+	var someErr error
+	model.TweetList, someErr = getLatestTweets(ctx)
+	if someErr != nil {
+		log.Infof(ctx, "Error getting latest tweets: %v", someErr)
+		return
 	}
 
 	// TODO: get recent tweets
