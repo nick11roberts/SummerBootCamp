@@ -63,7 +63,7 @@ func getLatestTweets(ctx context.Context) ([]*Tweet, error) {
 	// To retrieve the results,
 	// you must execute the Query using its GetAll or Run methods.
 	var tweets []*Tweet
-	_, err := q.GetAll(ctx, tweets)
+	_, err := q.GetAll(ctx, &tweets)
 	// handle error
 	if err != nil {
 		return nil, err

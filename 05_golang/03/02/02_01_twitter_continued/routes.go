@@ -30,7 +30,8 @@ func home(res http.ResponseWriter, req *http.Request) {
 	log.Infof(ctx, "user: ", u)
 	// pointers can be NIL so don't use a Profile * Profile here:
 	var model struct {
-		Profile Profile
+		Profile   Profile
+		TweetList []*Tweet
 	}
 
 	if u != nil {
@@ -40,6 +41,13 @@ func home(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 		model.Profile = *profile
+
+		model.TweetList, err = getLatestTweets(ctx)
+		if err != nil {
+			log.Infof(ctx, "Error getting latest tweets: %v", err)
+			return
+		}
+
 	}
 
 	// TODO: get recent tweets
@@ -57,7 +65,7 @@ func tweet(res http.ResponseWriter, req *http.Request) {
 	}
 	testTweet := Tweet{
 		Username:   currentUser.Username,
-		Message:    "Get the biggest, most muscular neck ever. BIG NECK. ",
+		Message:    "Get the biggest, most muscular neck ever. BIG NECK. ", //Temporary message until AJAX stuff is complete
 		TimePosted: time.Now(),
 	}
 	putTweet(req, &testTweet)
