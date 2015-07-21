@@ -1,11 +1,11 @@
 package main
 
 import (
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/user"
 	"net/http"
-	"strings"
+
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/user"
 )
 
 func init() {
@@ -34,7 +34,7 @@ func home(res http.ResponseWriter, req *http.Request) {
 	if u != nil {
 		profile, err := getProfileByEmail(ctx, u.Email)
 		if err != nil {
-		http.Redirect(res, req, "/login", 302)
+			http.Redirect(res, req, "/login", 302)
 			return
 		}
 		model.Profile = *profile
@@ -42,8 +42,7 @@ func home(res http.ResponseWriter, req *http.Request) {
 
 	// TODO: get recent tweets
 
-
-	renderTemplate(res, "home.html",  model)
+	renderTemplate(res, "home.html", model)
 }
 
 func login(res http.ResponseWriter, req *http.Request) {
@@ -93,35 +92,39 @@ func login(res http.ResponseWriter, req *http.Request) {
 
 func profile(res http.ResponseWriter, req *http.Request) {
 	// get the username
-	username := strings.SplitN(req.URL.Path, "/", 2)[1]
-	// get the profile
-	profile, err := getProfileByUsername(req, username)
-	if err != nil {
-		http.Error(res, err.Error(), 404)
-		return
-	}
+	//username := strings.SplitN(req.URL.Path, "/", 2)[1]
 
 	// TODO: fetch recent tweets
 
 	// TODO: show/hide logout/tweet based on logged_in cookie
 
-	// Render the template
+	ctx := appengine.NewContext(req)
+	u := user.Current(ctx)
+	log.Infof(ctx, "user: ", u)
+	// pointers can be NIL so don't use a Profile * Profile here:
 	var model struct {
-		Profile *Profile
+		Profile Profile
 	}
 
-	model.Profile = profile
+	if u != nil {
+		profile, err := getProfileByEmail(ctx, u.Email)
+		if err != nil {
+			http.Redirect(res, req, "/login", 302)
+			return
+		}
+		model.Profile = *profile
+	}
 
 	renderTemplate(res, "profile.html", model)
 	/*
 
-	// Render the template
-	type Model struct {
-		Profile *Profile
-	}
-	renderTemplate(res, "user-profile", Model{
-		Profile: profile,
-	})
+		// Render the template
+		type Model struct {
+			Profile *Profile
+		}
+		renderTemplate(res, "user-profile", Model{
+			Profile: profile,
+		})
 
 	*/
 }
