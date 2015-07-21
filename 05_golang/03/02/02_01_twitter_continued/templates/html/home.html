@@ -5,7 +5,9 @@
     <section>
         <a href="/{{ .Username }}"> @{{ .Username }}</a>
         <p id="post">{{ .Message }}</p>
+        {{ .TimePosted }}
     </section>
+
     {{end}}
 </main>
 {{template "footer" . }}

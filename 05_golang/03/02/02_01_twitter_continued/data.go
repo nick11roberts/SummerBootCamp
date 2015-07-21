@@ -71,6 +71,23 @@ func getLatestTweets(ctx context.Context) ([]*Tweet, error) {
 	return tweets, nil
 }
 
+// get latest tweets
+func getLatestTweetsByProfile(ctx context.Context) ([]*Tweet, error) {
+
+	// The Query type and its methods are used to construct a query.
+	q := datastore.NewQuery("Tweet").Order("-TimePosted")
+
+	// To retrieve the results,
+	// you must execute the Query using its GetAll or Run methods.
+	var tweets []*Tweet
+	_, err := q.GetAll(ctx, &tweets)
+	// handle error
+	if err != nil {
+		return nil, err
+	}
+	return tweets, nil
+}
+
 // insert tweet
 func putTweet(req *http.Request, tweet *Tweet) error {
 	ctx := appengine.NewContext(req)
