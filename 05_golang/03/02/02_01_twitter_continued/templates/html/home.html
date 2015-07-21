@@ -3,7 +3,7 @@
 <main>
     {{range .TweetList}}
     <section>
-        <i class="fa fa-user fa-2x"> @{{ .Username }}</i>
+        <a href="/{{ .Username }}"> @{{ .Username }}</a>
         <p id="post">{{ .Message }}</p>
     </section>
     {{end}}
