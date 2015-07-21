@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
@@ -70,7 +71,7 @@ func login(res http.ResponseWriter, req *http.Request) {
 		// if the username is already taken
 		if err == nil {
 			model.Error = "username is not available"
-			model.Profile.Username = username // caleb didn't have this line
+			model.Profile.Username = username
 		} else {
 			model.Profile.Username = username
 			// try to create the profile
@@ -91,17 +92,12 @@ func login(res http.ResponseWriter, req *http.Request) {
 }
 
 func profile(res http.ResponseWriter, req *http.Request) {
-	// get the username
-	//username := strings.SplitN(req.URL.Path, "/", 2)[1]
-
 	// TODO: fetch recent tweets
-
-	// TODO: show/hide logout/tweet based on logged_in cookie
 
 	ctx := appengine.NewContext(req)
 	u := user.Current(ctx)
 	log.Infof(ctx, "user: ", u)
-	// pointers can be NIL so don't use a Profile * Profile here:
+
 	var model struct {
 		Profile Profile
 	}
@@ -115,18 +111,24 @@ func profile(res http.ResponseWriter, req *http.Request) {
 		model.Profile = *profile
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
+	testTweet := Tweet{
+		Username:   "Nick",
+		Message:    "TWEET, TWEET, TWEET, TWEET, TWEET, TWEET, TWEET, TWEET",
+		TimePosted: time.Now(),
+	}
+	putTweet(req, &testTweet)
+
+	otherTestTweet := Tweet{
+		Username:   "NotNick",
+		Message:    "Some other random message",
+		TimePosted: time.Now(),
+	}
+	putTweet(req, &otherTestTweet)
+	////////////////////////////////////////////////////////////////////////////////
+
 	renderTemplate(res, "profile.html", model)
-	/*
 
-		// Render the template
-		type Model struct {
-			Profile *Profile
-		}
-		renderTemplate(res, "user-profile", Model{
-			Profile: profile,
-		})
-
-	*/
 }
 
 func logout(res http.ResponseWriter, req *http.Request) {
