@@ -72,10 +72,10 @@ func getLatestTweets(ctx context.Context) ([]*Tweet, error) {
 }
 
 // get latest tweets
-func getLatestTweetsByProfile(ctx context.Context) ([]*Tweet, error) {
+func getLatestTweetsByProfile(ctx context.Context, username string) ([]*Tweet, error) {
 
 	// The Query type and its methods are used to construct a query.
-	q := datastore.NewQuery("Tweet").Order("-TimePosted")
+	q := datastore.NewQuery("Tweet").Filter("Username =", username).Order("-TimePosted")
 
 	// To retrieve the results,
 	// you must execute the Query using its GetAll or Run methods.

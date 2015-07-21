@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"google.golang.org/appengine/user"
@@ -50,7 +51,7 @@ func home(res http.ResponseWriter, req *http.Request) {
 		log.Infof(ctx, "Error getting latest tweets: %v", someErr)
 		return
 	}
-  
+
 	renderTemplate(res, "home.html", model)
 }
 
@@ -160,9 +161,11 @@ func profile(res http.ResponseWriter, req *http.Request) {
 	}
 
 	var someErr error
-	model.TweetList, someErr = getLatestTweets(ctx)
+
+	username := strings.SplitN(req.URL.Path, "/", 2)[1]
+	model.TweetList, someErr = getLatestTweetsByProfile(ctx, username)
 	if someErr != nil {
-		log.Infof(ctx, "Error getting latest tweets: %v", someErr)
+		log.Infof(ctx, "Error getting this user's latest tweets: %v", someErr)
 		return
 	}
 
