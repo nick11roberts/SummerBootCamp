@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
+
+	"golang.org/x/net/context"
 
 	"google.golang.org/appengine/user"
 
@@ -63,13 +66,25 @@ func tweet(res http.ResponseWriter, req *http.Request) {
 		http.Redirect(res, req, "/login", 302)
 		return
 	}
+	tweetMessage := receiveTweet(ctx, res, req).Message
 	testTweet := Tweet{
 		Username:   currentUser.Username,
-		Message:    "Get the biggest, most muscular neck ever. BIG NECK. ", //Temporary message until AJAX stuff is complete
+		Message:    tweetMessage, //Temporary message until AJAX stuff is complete
 		TimePosted: time.Now(),
 	}
 	putTweet(req, &testTweet)
 	http.Redirect(res, req, "/", 302)
+}
+
+func receiveTweet(ctx context.Context, res http.ResponseWriter, req *http.Request) *Tweet {
+	var tweet Tweet
+	err := json.NewDecoder(req.Body).Decode(&tweet)
+	if err != nil {
+		log.Errorf(ctx, "Error unmarshalling tweet: %v", err)
+		http.Error(res, err.Error(), 500)
+		return nil
+	}
+	return &tweet
 }
 
 func login(res http.ResponseWriter, req *http.Request) {
